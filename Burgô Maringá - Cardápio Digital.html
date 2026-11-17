@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burgô Maringá | Cardápio Digital & Pedidos</title>
+    <!-- Carregamento do Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carregamento da Fonte Inter e Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            bg: '#121212',
+                            card: '#1E1E1E',
+                            cardHover: '#262626',
+                            amber: '#F59E0B',
+                            orange: '#EA580C',
+                            border: '#2E2E2E'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #F3F4F6;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Ocultar barra de rolagem horizontal nas abas de categoria mantendo o scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-black">
+
+    <!-- Cabeçalho / Hero Section -->
+    <header class="relative bg-gradient-to-b from-[#1E1E1E] via-[#181818] to-[#121212] border-b border-brand-border pt-8 pb-10 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <!-- Identidade da Marca -->
+                <div class="flex items-start sm:items-center gap-4">
+                    <!-- Logo Estilizada SVG -->
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-0.5 shadow-lg shadow-orange-600/20 flex-shrink-0">
+                        <div class="w-full h-full bg-[#181818] rounded-[14px] flex items-center justify-center">
+                            <svg class="w-10 h-10 sm:w-12 sm:h-12 text-amber-500" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Pão Superior -->
+                                <path d="M12 28C12 18 20 12 32 12C44 12 52 18 52 28H12Z" fill="currentColor"/>
+                                <!-- Gergelim -->
+                                <circle cx="24" cy="19" r="1.5" fill="#181818"/>
+                                <circle cx="32" cy="17" r="1.5" fill="#181818"/>
+                                <circle cx="40" cy="19" r="1.5" fill="#181818"/>
+                                <circle cx="28" cy="23" r="1.5" fill="#181818"/>
+                                <circle cx="36" cy="23" r="1.5" fill="#181818"/>
+                                <!-- Alface / Queijo -->
+                                <path d="M10 32C14 35 18 30 22 33C26 36 30 30 34 33C38 36 42 30 46 33C50 36 52 32 54 32" stroke="#EA580C" stroke-width="3.5" stroke-linecap="round"/>
+                                <!-- Carne -->
+                                <rect x="11" y="37" width="42" height="7" rx="3.5" fill="#9A3412"/>
+                                <!-- Pão Inferior -->
+                                <path d="M13 47H51C51 51 48 53 44 53H20C16 53 13 51 13 47Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2.5 mb-1">
+                            <h1 class="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+                                Burgô <span class="text-amber-500">Maringá</span>
+                            </h1>
+                            <!-- Badge de Status Dinâmico -->
+                            <span id="status-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-neutral-800 text-neutral-300 border border-neutral-700">
+                                <span id="status-dot" class="w-2 h-2 rounded-full bg-neutral-400"></span>
+                                <span id="status-text">Verificando horário...</span>
+                            </span>
+                        </div>
+                        <p class="text-amber-400/90 font-medium text-sm sm:text-base">
+                            O verdadeiro sabor artesanal em Maringá
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Informações Rápidas -->
+                <div class="flex flex-col gap-2 text-xs sm:text-sm text-gray-300 bg-[#181818]/90 p-3.5 rounded-xl border border-brand-border">
+                    <div class="flex items-start gap-2">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5"></i>
+                        <span>Av. Dr. Alexandre Rasgulaeff, 4077 - Jardim Imperial II, Maringá - PR</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 pt-1 border-t border-neutral-800">
+                        <a href="tel:554430315356" class="flex items-center gap-2 hover:text-amber-400 transition-colors">
+                            <i data-lucide="phone" class="w-4 h-4 text-amber-500"></i>
+                            <span>(44) 3031-5356</span>
+                        </a>
+                        <a href="https://www.google.com/maps/search/?api=1&query=Av.+Dr.+Alexandre+Rasgulaeff,+4077+-+Jardim+Imperial+II,+Maringá+-+PR" target="_blank" rel="noopener noreferrer" class="text-amber-500 hover:text-amber-400 font-medium inline-flex items-center gap-1">
+                            <span>Ver no Mapa</span>
+                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Barra de Navegação de Categorias (Sticky) -->
+    <nav class="sticky top-0 z-30 bg-[#121212]/95 backdrop-blur-md border-b border-brand-border">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div id="category-tabs" class="flex items-center gap-2 py-3 overflow-x-auto no-scrollbar">
+                <!-- Abas renderizadas via JS -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal / Grid de Produtos -->
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-28">
+        <!-- Barra de Busca Opcional -->
+        <div class="mb-6 relative">
+            <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input 
+                type="text" 
+                id="search-input" 
+                placeholder="Buscar burger, ingrediente ou bebida..." 
+                class="w-full bg-brand-card border border-brand-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-colors"
+            >
+        </div>
+
+        <!-- Título da Categoria Ativa -->
+        <div class="flex items-center justify-between mb-4">
+            <h2 id="active-category-title" class="font-display text-xl font-bold text-white">Todos os Itens</h2>
+            <span id="items-count" class="text-xs text-gray-400"></span>
+        </div>
+
+        <!-- Grid de Cards -->
+        <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Cards renderizados dinamicamente via JS -->
+        </div>
+
+        <!-- Estado Vazio na Busca -->
+        <div id="empty-state" class="hidden text-center py-12">
+            <div class="w-14 h-14 bg-brand-card rounded-full flex items-center justify-center mx-auto mb-3 text-gray-500">
+                <i data-lucide="search-x" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-base font-semibold text-gray-200">Nenhum item encontrado</h3>
+            <p class="text-sm text-gray-400 mt-1">Tente buscar por outro termo ou selecione outra categoria.</p>
+        </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-[#181818] border-t border-brand-border py-8 px-4 sm:px-6 lg:px-8 mb-16 sm:mb-0">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div>
+                <p class="font-display font-bold text-white text-base">Burgô Maringá</p>
+                <p class="text-xs text-gray-400 mt-1">Atendimento todos os dias das 18:00 às 23:00</p>
+                <a href="https://www.google.com/maps/search/?api=1&query=Av.+Dr.+Alexandre+Rasgulaeff,+4077+-+Jardim+Imperial+II,+Maringá+-+PR" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs text-amber-500 hover:text-amber-400 mt-2">
+                    <i data-lucide="navigation" class="w-3.5 h-3.5"></i>
+                    <span>Av. Dr. Alexandre Rasgulaeff, 4077 - Jardim Imperial II, Maringá - PR</span>
+                </a>
+            </div>
+            <div class="text-xs text-gray-500">
+                <p>Cardápio Digital Interativo</p>
+                <p class="mt-0.5">Pedidos diretos via WhatsApp • (44) 3031-5356</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Barra Inferior Fixa (Resumo do Carrinho Mobile/Desktop) -->
+    <div id="floating-cart-bar" class="fixed bottom-4 left-4 right-4 z-40 max-w-5xl mx-auto transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
+        <button 
+            onclick="openCartModal()" 
+            class="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-black font-bold py-3.5 px-5 rounded-2xl shadow-2xl shadow-orange-600/30 flex items-center justify-between transition-transform active:scale-[0.99]"
+        >
+            <div class="flex items-center gap-3">
+                <div class="bg-black/20 px-2.5 py-1 rounded-lg text-sm font-extrabold" id="bar-item-count">0</div>
+                <span class="text-sm sm:text-base">Ver Carrinho e Finalizar</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-base sm:text-lg font-extrabold" id="bar-total-price">R$ 0,00</span>
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </div>
+        </button>
+    </div>
+
+    <!-- Toast de Notificação (Substitui alert) -->
+    <div id="toast-notification" class="fixed top-20 right-4 z-50 bg-neutral-900 border border-amber-500/50 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-sm transition-all duration-300 opacity-0 -translate-y-4 pointer-events-none">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-amber-500"></i>
+        <span id="toast-message">Item adicionado ao carrinho!</span>
+    </div>
+
+    <!-- Modal / Gaveta do Carrinho de Compras -->
+    <div id="cart-modal" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop -->
+        <div onclick="closeCartModal()" class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"></div>
+
+        <!-- Painel Lateral / Inferior -->
+        <div class="fixed inset-y-0 right-0 w-full max-w-md bg-[#181818] border-l border-brand-border shadow-2xl flex flex-col z-10">
+            <!-- Cabeçalho do Modal -->
+            <div class="p-4 sm:p-5 border-b border-brand-border flex items-center justify-between bg-[#1E1E1E]">
+                <div class="flex items-center gap-2.5">
+                    <i data-lucide="shopping-bag" class="w-5 h-5 text-amber-500"></i>
+                    <h2 class="font-display font-bold text-lg text-white">Seu Pedido</h2>
+                </div>
+                <button onclick="closeCartModal()" class="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-neutral-800 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Conteúdo Rolável do Carrinho -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6">
+                <!-- Lista de Itens -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-400">Itens Selecionados</h3>
+                        <button onclick="clearCart()" class="text-xs text-red-400 hover:text-red-300">Limpar tudo</button>
+                    </div>
+                    <div id="cart-items-list" class="space-y-3">
+                        <!-- Itens do carrinho renderizados via JS -->
+                    </div>
+                </div>
+
+                <!-- Formulário de Entrega e Pagamento -->
+                <div id="checkout-form-section" class="space-y-4 pt-4 border-t border-brand-border">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-400">Dados para Entrega / Retirada</h3>
+
+                    <!-- Tipo de Recebimento -->
+                    <div class="grid grid-cols-2 gap-2 p-1 bg-[#121212] rounded-xl border border-brand-border">
+                        <button type="button" id="btn-delivery" onclick="setDeliveryMethod('delivery')" class="py-2 px-3 rounded-lg text-xs font-semibold transition-all bg-amber-500 text-black">
+                            Entrega (R$ 6,00)
+                        </button>
+                        <button type="button" id="btn-pickup" onclick="setDeliveryMethod('pickup')" class="py-2 px-3 rounded-lg text-xs font-semibold transition-all text-gray-400 hover:text-white">
+                            Retirar no Local
+                        </button>
+                    </div>
+
+                    <!-- Nome do Cliente -->
+                    <div>
+                        <label for="customer-name" class="block text-xs font-medium text-gray-300 mb-1">Seu Nome *</label>
+                        <input type="text" id="customer-name" placeholder="Ex: João Silva" class="w-full bg-[#121212] border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500">
+                    </div>
+
+                    <!-- Endereço (Exibido apenas se Entrega) -->
+                    <div id="address-field-group">
+                        <label for="customer-address" class="block text-xs font-medium text-gray-300 mb-1">Endereço Completo em Maringá *</label>
+                        <input type="text" id="customer-address" placeholder="Rua, número, bairro e complemento" class="w-full bg-[#121212] border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500">
+                    </div>
+
+                    <!-- Forma de Pagamento -->
+                    <div>
+                        <label for="payment-method" class="block text-xs font-medium text-gray-300 mb-1">Forma de Pagamento *</label>
+                        <select id="payment-method" onchange="toggleChangeField()" class="w-full bg-[#121212] border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                            <option value="Pix">Pix (Chave enviada no WhatsApp)</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito (Maquininha)</option>
+                            <option value="Cartão de Débito">Cartão de Débito (Maquininha)</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                        </select>
+                    </div>
+
+                    <!-- Campo de Troco (Condicional) -->
+                    <div id="change-field-group" class="hidden">
+                        <label for="payment-change" class="block text-xs font-medium text-gray-300 mb-1">Precisa de troco para quanto?</label>
+                        <input type="text" id="payment-change" placeholder="Ex: Troco para R$ 100,00 (ou Sem troco)" class="w-full bg-[#121212] border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500">
+                    </div>
+
+                    <!-- Observações -->
+                    <div>
+                        <label for="order-notes" class="block text-xs font-medium text-gray-300 mb-1">Observações (Opcional)</label>
+                        <textarea id="order-notes" rows="2" placeholder="Ex: Ponto da carne ao ponto, tirar cebola..." class="w-full bg-[#121212] border border-brand-border rounded-xl px-3.5 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500"></textarea>
+                    </div>
+
+                    <!-- Mensagem de Erro de Validação -->
+                    <div id="form-error-msg" class="hidden p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+                        Por favor, preencha seu nome e endereço para continuar.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rodapé do Modal / Totais e Botão WhatsApp -->
+            <div class="p-4 sm:p-5 border-t border-brand-border bg-[#1E1E1E] space-y-3">
+                <div class="space-y-1.5 text-sm">
+                    <div class="flex justify-between text-gray-400">
+                        <span>Subtotal</span>
+                        <span id="modal-subtotal">R$ 0,00</span>
+                    </div>
+                    <div class="flex justify-between text-gray-400">
+                        <span>Taxa de Entrega</span>
+                        <span id="modal-delivery-fee">R$ 6,00</span>
+                    </div>
+                    <div class="flex justify-between text-base font-bold text-white pt-1.5 border-t border-neutral-800">
+                        <span>Total</span>
+                        <span class="text-amber-500" id="modal-total">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <button 
+                    onclick="sendWhatsAppOrder()" 
+                    class="w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-extrabold py-3.5 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
+                >
+                    <i data-lucide="message-circle" class="w-5 h-5 fill-current"></i>
+                    <span>Finalizar Pedido no WhatsApp</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. DADOS DO CARDÁPIO (BURGÔ MARINGÁ)
+        // ==========================================
+        const WHATSAPP_NUMBER = "554430315356";
+        const DELIVERY_FEE_VALUE = 6.00;
+
+        const menuItems = [
+            // Burgers Especiais
+            {
+                id: 1,
+                name: "Burgô Bacon Supreme",
+                category: "Burgers Especiais",
+                description: "Pão brioche selado na manteiga, hambúrguer artesanal de 180g (blend angus), duplo queijo cheddar inglês, fatias generosas de bacon crocante e maionese defumada da casa.",
+                price: 34.90,
+                badge: "Mais Pedido",
+                iconType: "burger-special"
+            },
+            {
+                id: 2,
+                name: "Gorgonzola & Cebola Caramelizada",
+                category: "Burgers Especiais",
+                description: "Pão australiano macio, blend bovino 180g grelhado na brasa, creme de queijo gorgonzola artesanal, cebola caramelizada no açúcar mascavo e rúcula fresca.",
+                price: 36.90,
+                badge: "Chef Recomenda",
+                iconType: "burger-special"
+            },
+            {
+                id: 3,
+                name: "Burgô Costela BBQ",
+                category: "Burgers Especiais",
+                description: "Pão brioche, hambúrguer 180g recheado com costela bovina desfiada, queijo provolone maçaricado, onion rings crocantes e molho barbecue artesanal.",
+                price: 38.90,
+                badge: null,
+                iconType: "burger-special"
+            },
+            {
+                id: 4,
+                name: "Trufado Imperial",
+                category: "Burgers Especiais",
+                description: "Pão brioche, blend 180g, queijo brie empanado crocante, geleia de pimenta suave e aioli trufado.",
+                price: 39.90,
+                badge: null,
+                iconType: "burger-special"
+            },
+
+            // Clássicos
+            {
+                id: 5,
+                name: "Smash Duplo Cheddar",
+                category: "Clássicos",
+                description: "Pão de batata super macio, dois burgers smash de 90g prensados na chapa com crostinha perfeita, duplo cheddar cremoso e picles artesanal.",
+                price: 28.90,
+                badge: "Clássico",
+                iconType: "burger-classic"
+            },
+            {
+                id: 6,
+                name: "X-Salada Artesanal",
+                category: "Clássicos",
+                description: "Pão brioche, blend bovino 150g, queijo mussarela derretido, alface americana crocante, tomate fresco e maionese verde temperada.",
+                price: 25.90,
+                badge: null,
+                iconType: "burger-classic"
+            },
+            {
+                id: 7,
+                name: "Burgô Cheese Burger",
+                category: "Clássicos",
+                description: "O essencial feito com perfeição: pão brioche, blend 150g suculento e camada dupla de queijo prato derretido.",
+                price: 22.90,
+                badge: null,
+                iconType: "burger-classic"
+            },
+
+            // Porções & Acompanhamentos
+            {
+                id: 8,
+                name: "Batata Rústica com Cheddar e Bacon",
+                category: "Porções & Acompanhamentos",
+                description: "Porção generosa (400g) de batatas rústicas temperadas com alecrim e páprica, cobertas com cheddar cremoso e farofa de bacon.",
+                price: 26.90,
+                badge: "Para Compartilhar",
+                iconType: "fries"
+            },
+            {
+                id: 9,
+                name: "Onion Rings Crocantes",
+                category: "Porções & Acompanhamentos",
+                description: "12 unidades de anéis de cebola empanados super crocantes acompanhados de molho barbecue ou maionese da casa.",
+                price: 19.90,
+                badge: null,
+                iconType: "fries"
+            },
+            {
+                id: 10,
+                name: "Batata Frita Individual",
+                category: "Porções & Acompanhamentos",
+                description: "Porção individual (150g) de batatas palito sequinhas e crocantes.",
+                price: 12.90,
+                badge: null,
+                iconType: "fries"
+            },
+
+            // Bebidas
+            {
+                id: 11,
+                name: "Coca-Cola Lata 350ml",
+                category: "Bebidas",
+                description: "Lata 350ml bem gelada (Original ou Sem Açúcar).",
+                price: 6.50,
+                badge: null,
+                iconType: "drink"
+            },
+            {
+                id: 12,
+                name: "Guaraná Antarctica Lata 350ml",
+                category: "Bebidas",
+                description: "Lata 350ml bem gelada.",
+                price: 6.50,
+                badge: null,
+                iconType: "drink"
+            },
+            {
+                id: 13,
+                name: "Suco Natural de Laranja 500ml",
+                category: "Bebidas",
+                description: "Suco 100% natural espremido na hora, sem adição de conservantes.",
+                price: 10.90,
+                badge: "Natural",
+                iconType: "juice"
+            },
+            {
+                id: 14,
+                name: "Suco Natural de Limão com Hortelã 500ml",
+                category: "Bebidas",
+                description: "Refrescante, batido na hora com folhas frescas de hortelã.",
+                price: 10.90,
+                badge: null,
+                iconType: "juice"
+            }
+        ];
+
+        const categories = [
+            "Todos",
+            "Burgers Especiais",
+            "Clássicos",
+            "Porções & Acompanhamentos",
+            "Bebidas"
+        ];
+
+        // ==========================================
+        // 2. ESTADO DA APLICAÇÃO
+        // ==========================================
+        let activeCategory = "Todos";
+        let searchQuery = "";
+        let cart = []; // Array de { item, quantity }
+        let deliveryMethod = "delivery"; // 'delivery' ou 'pickup'
+
+        // ==========================================
+        // 3. UTILITÁRIOS E ÍCONES SVG
+        // ==========================================
+        function formatCurrency(value) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function getCategoryIllustration(type) {
+            switch (type) {
+                case 'burger-special':
+                    return `<svg class="w-10 h-10 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-4.97 0-9 3.13-9 7h18c0-3.87-4.03-7-9-7Z"/><path d="M3 14h18"/><path d="M4 17h16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M7 10.5l2 1.5 3-1.5 3 1.5 2-1.5" stroke="#EA580C"/></svg>`;
+                case 'burger-classic':
+                    return `<svg class="w-10 h-10 text-orange-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a8 8 0 0 1 16 0H4Z"/><rect x="3" y="13" width="18" height="3" rx="1.5"/><path d="M5 19h14"/></svg>`;
+                case 'fries':
+                    return `<svg class="w-10 h-10 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10l2 11h10l2-11H5Z"/><path d="M7 10V5"/><path d="M10 10V3"/><path d="M14 10V4"/><path d="M17 10V6"/></svg>`;
+                case 'drink':
+                    return `<svg class="w-10 h-10 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="4" width="10" height="16" rx="2"/><path d="M7 8h10"/><path d="M15 4l2-2"/></svg>`;
+                case 'juice':
+                    return `<svg class="w-10 h-10 text-lime-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1.5 13h-9L6 8Z"/><path d="M12 8l3-5"/><circle cx="17" cy="8" r="3" stroke="#F59E0B"/></svg>`;
+                default:
+                    return `<i data-lucide="utensils" class="w-8 h-8 text-amber-500"></i>`;
+            }
+        }
+
+        // ==========================================
+        // 4. STATUS DE FUNCIONAMENTO (18:00 ÀS 23:00)
+        // ==========================================
+        function updateOperatingStatus() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const badge = document.getElementById('status-badge');
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+
+            // Aberto das 18:00 (inclusive) até 23:00 (exclusive)
+            const isOpen = currentHour >= 18 && currentHour < 23;
+
+            if (isOpen) {
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
+                dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse-subtle";
+                text.textContent = "Aberto Agora (18:00 às 23:00)";
+            } else {
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-500/15 text-red-400 border border-red-500/30";
+                dot.className = "w-2 h-2 rounded-full bg-red-400";
+                text.textContent = "Fechado no momento (Abre às 18:00)";
+            }
+        }
+
+        // ==========================================
+        // 5. RENDERIZAÇÃO DE ABAS E CARDÁPIO
+        // ==========================================
+        function renderCategoryTabs() {
+            const container = document.getElementById('category-tabs');
+            container.innerHTML = categories.map(category => {
+                const isActive = category === activeCategory;
+                const activeClasses = isActive
+                    ? "bg-amber-500 text-black font-bold shadow-md shadow-amber-500/20"
+                    : "bg-brand-card text-gray-300 hover:bg-brand-cardHover hover:text-white border border-brand-border";
+
+                return `
+                    <button 
+                        onclick="selectCategory('${category}')"
+                        class="px-4 py-2 rounded-xl text-xs sm:text-sm whitespace-nowrap transition-all ${activeClasses}"
+                    >
+                        ${category}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectCategory(category) {
+            activeCategory = category;
+            document.getElementById('active-category-title').textContent = 
+                category === "Todos" ? "Cardápio Completo" : category;
+            renderCategoryTabs();
+            renderMenu();
+        }
+
+        function renderMenu() {
+            const grid = document.getElementById('menu-grid');
+            const emptyState = document.getElementById('empty-state');
+            const itemsCount = document.getElementById('items-count');
+
+            const filteredItems = menuItems.filter(item => {
+                const matchesCategory = activeCategory === "Todos" || item.category === activeCategory;
+                const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                      item.description.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+
+            itemsCount.textContent = `${filteredItems.length} ${filteredItems.length === 1 ? 'item' : 'itens'}`;
+
+            if (filteredItems.length === 0) {
+                grid.innerHTML = "";
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            grid.innerHTML = filteredItems.map(item => {
+                const cartEntry = cart.find(c => c.item.id === item.id);
+                const quantityInCart = cartEntry ? cartEntry.quantity : 0;
+
+                return `
+                    <div class="bg-brand-card hover:bg-brand-cardHover border border-brand-border rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-200 group">
+                        <div class="flex gap-4">
+                            <!-- Ilustração Estilizada -->
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#141414] border border-neutral-800 flex items-center justify-center flex-shrink-0 group-hover:border-amber-500/40 transition-colors">
+                                ${getCategoryIllustration(item.iconType)}
+                            </div>
+
+                            <!-- Informações do Produto -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start justify-between gap-2">
+                                    <h3 class="font-display font-bold text-base sm:text-lg text-white leading-snug">
+                                        ${item.name}
+                                    </h3>
+                                </div>
+                                ${item.badge ? `
+                                    <span class="inline-block mt-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/20">
+                                        ${item.badge}
+                                    </span>
+                                ` : ''}
+                                <p class="text-xs sm:text-sm text-gray-400 mt-2 leading-relaxed line-clamp-3">
+                                    ${item.description}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Rodapé do Card: Preço e Botão Adicionar -->
+                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-neutral-800/80">
+                            <span class="font-display font-extrabold text-lg text-amber-500">
+                                ${formatCurrency(item.price)}
+                            </span>
+
+                            ${quantityInCart === 0 ? `
+                                <button 
+                                    onclick="addToCart(${item.id})"
+                                    class="bg-amber-500 hover:bg-amber-400 active:scale-95 text-black font-bold text-xs sm:text-sm px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-sm"
+                                >
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                    <span>Adicionar</span>
+                                </button>
+                            ` : `
+                                <div class="flex items-center gap-2 bg-[#121212] border border-amber-500/40 rounded-xl p-1">
+                                    <button onclick="updateQuantity(${item.id}, -1)" class="w-7 h-7 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white flex items-center justify-center transition-colors">
+                                        <i data-lucide="minus" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                    <span class="text-sm font-bold text-white w-5 text-center">${quantityInCart}</span>
+                                    <button onclick="updateQuantity(${item.id}, 1)" class="w-7 h-7 rounded-lg bg-amber-500 hover:bg-amber-400 text-black flex items-center justify-center transition-colors">
+                                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // 6. LÓGICA DO CARRINHO DE COMPRAS
+        // ==========================================
+        function showToast(message) {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-message').textContent = message;
+            toast.classList.remove('opacity-0', '-translate-y-4', 'pointer-events-none');
+            
+            clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-4', 'pointer-events-none');
+            }, 2200);
+        }
+
+        function addToCart(itemId) {
+            const product = menuItems.find(i => i.id === itemId);
+            if (!product) return;
+
+            const existing = cart.find(c => c.item.id === itemId);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ item: product, quantity: 1 });
+            }
+
+            showToast(`${product.name} adicionado!`);
+            updateCartUI();
+            renderMenu();
+        }
+
+        function updateQuantity(itemId, delta) {
+            const index = cart.findIndex(c => c.item.id === itemId);
+            if (index === -1) return;
+
+            cart[index].quantity += delta;
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            }
+
+            updateCartUI();
+            renderMenu();
+
+            if (cart.length === 0) {
+                closeCartModal();
+            }
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCartUI();
+            renderMenu();
+            closeCartModal();
+        }
+
+        function getCartTotals() {
+            const subtotal = cart.reduce((sum, entry) => sum + (entry.item.price * entry.quantity), 0);
+            const deliveryFee = (deliveryMethod === 'delivery' && cart.length > 0) ? DELIVERY_FEE_VALUE : 0;
+            const total = subtotal + deliveryFee;
+            const totalItems = cart.reduce((sum, entry) => sum + entry.quantity, 0);
+
+            return { subtotal, deliveryFee, total, totalItems };
+        }
+
+        function updateCartUI() {
+            const { subtotal, deliveryFee, total, totalItems } = getCartTotals();
+
+            // Atualizar Barra Inferior Flutuante
+            const bar = document.getElementById('floating-cart-bar');
+            document.getElementById('bar-item-count').textContent = totalItems;
+            document.getElementById('bar-total-price').textContent = formatCurrency(total);
+
+            if (totalItems > 0) {
+                bar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+            } else {
+                bar.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+            }
+
+            // Atualizar Lista dentro do Modal
+            const listContainer = document.getElementById('cart-items-list');
+            if (cart.length === 0) {
+                listContainer.innerHTML = `<p class="text-sm text-gray-500 text-center py-4">Seu carrinho está vazio.</p>`;
+            } else {
+                listContainer.innerHTML = cart.map(entry => `
+                    <div class="bg-[#121212] border border-brand-border rounded-xl p-3 flex items-center justify-between gap-3">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-white truncate">${entry.item.name}</p>
+                            <p class="text-xs text-amber-500 font-medium mt-0.5">${formatCurrency(entry.item.price * entry.quantity)}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateQuantity(${entry.item.id}, -1)" class="w-7 h-7 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white flex items-center justify-center">
+                                <i data-lucide="minus" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <span class="text-xs font-bold text-white w-4 text-center">${entry.quantity}</span>
+                            <button onclick="updateQuantity(${entry.item.id}, 1)" class="w-7 h-7 rounded-lg bg-amber-500 hover:bg-amber-400 text-black flex items-center justify-center">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Atualizar Valores no Modal
+            document.getElementById('modal-subtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('modal-delivery-fee').textContent = deliveryMethod === 'delivery' ? formatCurrency(deliveryFee) : 'Grátis (Retirada)';
+            document.getElementById('modal-total').textContent = formatCurrency(total);
+
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // 7. CONTROLES DO MODAL E CHECKOUT WHATSAPP
+        // ==========================================
+        function openCartModal() {
+            if (cart.length === 0) return;
+            document.getElementById('form-error-msg').classList.add('hidden');
+            document.getElementById('cart-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            updateCartUI();
+        }
+
+        function closeCartModal() {
+            document.getElementById('cart-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function setDeliveryMethod(method) {
+            deliveryMethod = method;
+            const btnDelivery = document.getElementById('btn-delivery');
+            const btnPickup = document.getElementById('btn-pickup');
+            const addressGroup = document.getElementById('address-field-group');
+
+            if (method === 'delivery') {
+                btnDelivery.className = "py-2 px-3 rounded-lg text-xs font-semibold transition-all bg-amber-500 text-black";
+                btnPickup.className = "py-2 px-3 rounded-lg text-xs font-semibold transition-all text-gray-400 hover:text-white";
+                addressGroup.classList.remove('hidden');
+            } else {
+                btnPickup.className = "py-2 px-3 rounded-lg text-xs font-semibold transition-all bg-amber-500 text-black";
+                btnDelivery.className = "py-2 px-3 rounded-lg text-xs font-semibold transition-all text-gray-400 hover:text-white";
+                addressGroup.classList.add('hidden');
+            }
+
+            updateCartUI();
+        }
+
+        function toggleChangeField() {
+            const payment = document.getElementById('payment-method').value;
+            const changeGroup = document.getElementById('change-field-group');
+            if (payment === 'Dinheiro') {
+                changeGroup.classList.remove('hidden');
+            } else {
+                changeGroup.classList.add('hidden');
+            }
+        }
+
+        function sendWhatsAppOrder() {
+            const customerName = document.getElementById('customer-name').value.trim();
+            const customerAddress = document.getElementById('customer-address').value.trim();
+            const paymentMethod = document.getElementById('payment-method').value;
+            const paymentChange = document.getElementById('payment-change').value.trim();
+            const orderNotes = document.getElementById('order-notes').value.trim();
+            const errorBox = document.getElementById('form-error-msg');
+
+            // Validação simples
+            if (!customerName || (deliveryMethod === 'delivery' && !customerAddress)) {
+                errorBox.textContent = deliveryMethod === 'delivery'
+                    ? "Por favor, informe seu nome e endereço completo para entrega."
+                    : "Por favor, informe seu nome para retirada no balcão.";
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            errorBox.classList.add('hidden');
+
+            const { subtotal, deliveryFee, total } = getCartTotals();
+
+            // Montar texto formatado para o WhatsApp
+            let message = `*NOVO PEDIDO - BURGÔ MARINGÁ* 🍔\n\n`;
+            message += `*Cliente:* ${customerName}\n`;
+            message += `*Tipo:* ${deliveryMethod === 'delivery' ? 'Entrega 🛵' : 'Retirar no Local 🏪'}\n`;
+            
+            if (deliveryMethod === 'delivery') {
+                message += `*Endereço:* ${customerAddress}\n`;
+            }
+
+            message += `\n*ITENS DO PEDIDO:*\n`;
+            cart.forEach(entry => {
+                message += `• ${entry.quantity}x ${entry.item.name} (${formatCurrency(entry.item.price * entry.quantity)})\n`;
+            });
+
+            if (orderNotes) {
+                message += `\n*Observações:* ${orderNotes}\n`;
+            }
+
+            message += `\n*RESUMO DE VALORES:*\n`;
+            message += `Subtotal: ${formatCurrency(subtotal)}\n`;
+            message += `Taxa de Entrega: ${deliveryMethod === 'delivery' ? formatCurrency(deliveryFee) : 'Grátis'}\n`;
+            message += `*Total a Pagar: ${formatCurrency(total)}*\n\n`;
+            message += `*Forma de Pagamento:* ${paymentMethod}`;
+            
+            if (paymentMethod === 'Dinheiro' && paymentChange) {
+                message += ` (${paymentChange})`;
+            }
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // ==========================================
+        // 8. INICIALIZAÇÃO
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            updateOperatingStatus();
+            // Atualiza status a cada minuto
+            setInterval(updateOperatingStatus, 60000);
+
+            renderCategoryTabs();
+            renderMenu();
+
+            // Listener de busca
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                renderMenu();
+            });
+
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
